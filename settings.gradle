@@ -1,0 +1,5 @@
+include ':lib_p_annotation'
+include ':lib_p_compiler'
+include ':lib_p'
+include ':app'
+rootProject.name = "DatabaseDemo"
