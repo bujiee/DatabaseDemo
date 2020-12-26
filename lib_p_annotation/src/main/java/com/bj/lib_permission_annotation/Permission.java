@@ -8,7 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 申请权限的,用于标注Activity,立即申请权限
+ * 只有被标注的Activity才能申请权限
+ * 当有值的时候会立即申请权限
  */
 @Documented
 @Inherited

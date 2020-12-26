@@ -3,6 +3,7 @@ package com.bj.lib_p_compiler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -12,6 +13,9 @@ public class PermissionData {
     private String className;
     private String packageName;
     private String parent;
+
+    private String[] permissions;
+    private int requestCode=-1;
 
     private Set<Element> defined = new HashSet<>();
     private Set<Element> granted = new HashSet<>();
@@ -90,12 +94,30 @@ public class PermissionData {
         this.rationale = rationale;
     }
 
+    public String[] getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(String[] permissions) {
+        this.permissions = permissions;
+    }
+
+    public int getRequestCode() {
+        return requestCode;
+    }
+
+    public void setRequestCode(int requestCode) {
+        this.requestCode = requestCode;
+    }
+
     @Override
     public String toString() {
         return "PermissionData{" +
                 "className='" + className + '\'' +
                 ", packageName='" + packageName + '\'' +
                 ", parent='" + parent + '\'' +
+                ", permissions=" + permissions +
+                ", requestCode=" + requestCode +
                 ", defined=" + defined +
                 ", granted=" + granted +
                 ", permission=" + permission +

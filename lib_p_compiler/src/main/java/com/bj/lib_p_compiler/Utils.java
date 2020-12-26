@@ -13,5 +13,19 @@ public class Utils {
         return className.substring(0, lastIndex);
     }
 
+    public static String arrayToString(String[] args) {
+        if (args == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (int i = 0; i < args.length; i++) {
+            sb.append("\"").append(args[i]).append("\"").append(i == args.length - 1 ? "" : ",");
+        }
+        sb.append("}");
+
+        return sb.toString();
+    }
+
 
 }

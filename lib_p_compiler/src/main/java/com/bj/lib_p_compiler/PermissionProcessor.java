@@ -6,6 +6,7 @@ import com.bj.lib_permission_annotation.Permission;
 import com.bj.lib_permission_annotation.Rationale;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -104,6 +105,12 @@ public class PermissionProcessor extends AbstractProcessor {
             if (permissionData == null) {
                 continue;
             }
+            Permission annotation = element.getAnnotation(Permission.class);
+            if (annotation != null) {
+                permissionData.setPermissions(annotation.permission());
+                permissionData.setRequestCode(annotation.reqCode());
+            }
+
             //Defined
             for (Element definedE : permissionData.getDefined()) {
                 ExecutableElement parameterizable = (ExecutableElement) definedE;
@@ -203,20 +210,34 @@ public class PermissionProcessor extends AbstractProcessor {
                            List<String> defined,
                            List<String> notShow) throws IOException {
 
-        printMessage("granted: " + granted);
-        printMessage("defined: " + defined);
-        printMessage("notShow: " + notShow);
+        printMessage("packageName + className: " + packageName + className);
+
+        PermissionData permissionData = PermissionProcessor.permissionData.get(packageName + "." + className);
 
         String createClassName = className + "_PermissionBinding";
         printMessage("createClassName " + createClassName);
 
         ClassName activity = C.createClass(packageName, className);
-
         List<MethodSpec> methodSpecs = new ArrayList<>();
         //添加Activity成员变量
         FieldSpec activityName = FieldSpec.builder(activity, "activity")
                 .addModifiers(Modifier.PUBLIC)
                 .build();
+
+        FieldSpec.Builder permissionsStatementBuilder = FieldSpec.builder(String[].class, "permissions")
+                .addModifiers(Modifier.PUBLIC);
+        if (permissionData != null && permissionData.getPermissions() != null) {
+            permissionsStatementBuilder.initializer(Utils.arrayToString(permissionData.getPermissions()));
+        }
+        FieldSpec permissionsStatement = permissionsStatementBuilder.build();
+
+        FieldSpec.Builder requestCodeStatementBuilder = FieldSpec.builder(int.class, "requestCode")
+                .addModifiers(Modifier.PUBLIC);
+        if (permissionData != null) {
+            requestCodeStatementBuilder.initializer(String.valueOf(permissionData.getRequestCode()));
+        }
+        FieldSpec requestCodeStatement = requestCodeStatementBuilder.build();
+
         //添加构造方法
         MethodSpec constructorMethod = MethodSpec.constructorBuilder()
                 .addParameter(activity, "activity")
@@ -273,6 +294,8 @@ public class PermissionProcessor extends AbstractProcessor {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(C.IPermissionResultListener)
                 .addField(activityName)
+                .addField(permissionsStatement)
+                .addField(requestCodeStatement)
                 .addMethod(constructorMethod)
                 .addMethods(methodSpecs)
                 .build();
